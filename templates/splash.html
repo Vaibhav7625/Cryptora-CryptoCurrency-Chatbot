@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="text-size-adjust" content="100%">
+    <title>Cryptora | Premium Crypto Assistant</title>
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" as="style">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #0a0a0a;
+            overflow: hidden;
+            font-family: 'Space Grotesk', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-overflow-scrolling: touch;
+            backface-visibility: hidden;
+            transform: translateZ(0);
+        }
+        
+        .splash-container {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+        
+        .logo-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin-bottom: 20px;
+        }
+        
+        .logo {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 140%;
+            height: 100%;
+            opacity: 0;
+            animation: fadeIn 1.5s ease-out forwards;
+            background-color: black;
+            border-radius: 10px;
+        }
+        
+        .logo-inner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40%;
+            height: 40%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            animation: fadeIn 1.5s ease-out 0.3s forwards;
+        }
+        
+        .app-name {
+            color: #d4af37;
+            font-size: 36px;
+            font-weight: 700;
+            letter-spacing: 6px;
+            margin-top: 30px;
+            opacity: 0;
+            animation: fadeIn 1.5s ease-out 0.6s forwards;
+        }
+        
+        .tagline {
+            color: rgba(212, 175, 55, 0.8);
+            font-size: 16px;
+            font-weight: 400;
+            letter-spacing: 1px;
+            margin-top: 10px;
+            opacity: 0;
+            animation: fadeIn 1.5s ease-out 0.9s forwards;
+        }
+        
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        
+        .loading-bar {
+            position: relative;
+            width: 220px;
+            height: 2px;
+            background-color: rgba(212, 175, 55, 0.2);
+            border-radius: 1px;
+            margin-top: 40px;
+            overflow: hidden;
+            opacity: 0;
+            animation: fadeIn 1s ease-out 1.2s forwards;
+        }
+        
+        .loading-progress {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 0%;
+            background-color: #d4af37;
+            animation: loading 2s ease-out forwards;
+        }
+        
+        @keyframes loading {
+            0% { width: 0%; }
+            60% { width: 60%; }
+            100% { width: 100%; }
+        }
+        
+        /* Background Grid */
+        .grid-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(212, 175, 55, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(212, 175, 55, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+            z-index: -2;
+            opacity: 0;
+            animation: fadeIn 2s ease-out 1s forwards;
+        }
+        
+        /* Subtle market chart background */
+        .market-chart {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 150px;
+            z-index: -1;
+            opacity: 0.15;
+            animation: fadeIn 2s ease-out 1.5s forwards;
+        }
+        
+        .market-chart path {
+            fill: none;
+            stroke: #d4af37;
+            stroke-width: 1px;
+        }
+        
+        /* Gold particle effects */
+        .gold-particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .gold-particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background-color: #d4af37;
+            border-radius: 50%;
+            opacity: 0;
+        }
+        
+        /* Glow effect */
+        .logo-glow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
+            z-index: -1;
+            opacity: 0;
+            animation: glowPulse 4s ease-in-out 0.5s infinite alternate;
+        }
+        
+        @keyframes glowPulse {
+            0% { opacity: 0.1; transform: translate(-50%, -50%) scale(0.9); }
+            100% { opacity: 0.3; transform: translate(-50%, -50%) scale(1.1); }
+        }
+        
+        /* Crypto market tickers */
+        .crypto-tickers {
+            position: absolute;
+            bottom: 30px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            opacity: 0;
+            animation: fadeIn 1s ease-out 1.8s forwards;
+        }
+        
+        .ticker-item {
+            color: rgba(212, 175, 55, 0.7);
+            font-size: 12px;
+            letter-spacing: 1px;
+        }
+        
+        .ticker-price {
+            font-weight: 500;
+        }
+        
+        .ticker-change.positive {
+            color: rgba(75, 181, 67, 0.7);
+        }
+        
+        .ticker-change.negative {
+            color: rgba(181, 67, 67, 0.7);
+        }
+    </style>
+</head>
+<body>
+    <!-- Grid background -->
+    <div class="grid-background"></div>
+    
+    <!-- Main container -->
+    <div class="splash-container">
+        <div class="logo-container">
+            <!-- Logo glow effect -->
+            <div class="logo-glow"></div>
+            
+            <!-- Your logo image from Image 2 -->
+            <img src="static\img\logo1.png" class="logo" alt="Cryptora Logo">
+        </div>
+        
+        <h1 class="app-name">CRYPTORA</h1>
+        <p class="tagline">Premium Crypto Assistant</p>
+        
+        <div class="loading-bar">
+            <div class="loading-progress"></div>
+        </div>
+        
+        <!-- Market tickers -->
+        <div class="crypto-tickers">
+            <div class="ticker-item">
+                BTC <span class="ticker-price">$81,250</span> <span class="ticker-change positive">+2.4%</span>
+            </div>
+            <div class="ticker-item">
+                ETH <span class="ticker-price">$3,890</span> <span class="ticker-change positive">+1.7%</span>
+            </div>
+            <div class="ticker-item">
+                BNB <span class="ticker-price">$610</span> <span class="ticker-change negative">-0.3%</span>
+            </div>
+            <div class="ticker-item">
+                SOL <span class="ticker-price">$195</span> <span class="ticker-change positive">+4.2%</span>
+            </div>
+        </div>
+        
+        <!-- Market chart background -->
+        <svg class="market-chart" viewBox="0 0 1000 200" preserveAspectRatio="none">
+            <path d="M0,150 L50,140 L100,160 L150,130 L200,150 L250,100 L300,110 L350,90 L400,70 L450,80 L500,40 L550,60 L600,50 L650,70 L700,65 L750,85 L800,75 L850,95 L900,85 L950,65 L1000,70" />
+        </svg>
+    </div>
+
+    <!-- Gold particles container -->
+    <div class="gold-particles" id="particles"></div>
+
+    <script>
+        // Create subtle gold particles
+        const particlesContainer = document.getElementById('particles');
+        
+        for (let i = 0; i < 40; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'gold-particle';
+            
+            // Random position, size and animation
+            const size = 1 + Math.random() * 2;
+            const x = Math.random() * 100;
+            const y = Math.random() * 100;
+            const opacity = 0.3 + Math.random() * 0.5;
+            const delay = Math.random() * 3;
+            
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            particle.style.left = `${x}%`;
+            particle.style.top = `${y}%`;
+            particle.style.opacity = '0';
+            
+            // Customize animation
+            particle.animate([
+                { opacity: 0, transform: 'translateY(0)' },
+                { opacity: opacity, transform: 'translateY(0)' },
+                { opacity: 0, transform: 'translateY(-20px)' }
+            ], {
+                duration: 3000 + Math.random() * 2000,
+                delay: delay * 1000,
+                iterations: Infinity
+            });
+            
+            particlesContainer.appendChild(particle);
+        }
+        
+        // Auto-redirect after animation completes
+        setTimeout(() => {
+            window.location.href = "/chat";  // Redirect to main chat interface
+        }, 4500);
+    </script>
+</body>
+</html>

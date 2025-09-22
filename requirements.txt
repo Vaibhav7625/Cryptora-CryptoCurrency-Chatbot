@@ -1,0 +1,14 @@
+
+flask
+google-generativeai
+requests
+langchain
+googlesearch-python
+selenium
+webdriver-manager
+newspaper3k
+speechrecognition
+pydub
+nltk
+lxml_html_clean
+python-dotenv
