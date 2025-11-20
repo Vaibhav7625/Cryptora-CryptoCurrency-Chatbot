@@ -1,7 +1,7 @@
 import google.generativeai as genai
 import requests
 from datetime import datetime, timedelta
-from langchain_community.memory import ConversationBufferMemory
+from langchain_community.chat_message_histories import ChatMessageHistory
 from googlesearch import search
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -25,7 +25,44 @@ genai.configure(api_key=GEMINI_API_KEY)
 
 BASE_URL = "https://cryptopanic.com/api/v1/posts/"
 
-memory = ConversationBufferMemory()
+class MemoryAdapter:
+    def __init__(self):
+        self._hist = ChatMessageHistory()
+
+    def save_context(self, inputs, outputs):
+        user_text = inputs.get("input", "") if isinstance(inputs, dict) else inputs
+        if isinstance(outputs, dict):
+            ai_text = outputs.get("output", "")
+        else:
+            ai_text = outputs or ""
+
+        if user_text:
+            try:
+                self._hist.add_user_message(user_text)
+            except:
+                self._hist.add_message({"type": "human", "content": user_text})
+
+        if ai_text:
+            try:
+                self._hist.add_ai_message(ai_text)
+            except:
+                self._hist.add_message({"type": "ai", "content": ai_text})
+
+    @property
+    def chat_memory(self):
+        class ChatMemoryWrapper:
+            def __init__(self, hist):
+                self.hist = hist
+
+            @property
+            def messages(self):
+                try:
+                    return self.hist.messages
+                except:
+                    return []
+        return ChatMemoryWrapper(self._hist)
+
+memory = MemoryAdapter()
 
 # Function to extract intent and cryptocurrency from user input using Gemini
 def detect_intent_and_crypto(user_input):
