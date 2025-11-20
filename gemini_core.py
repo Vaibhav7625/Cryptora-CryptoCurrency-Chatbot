@@ -456,7 +456,7 @@ def get_supported_coins(limit=20):
     response = requests.get(url, headers=headers)
 
     if response.status_code != 200:
-        return "Sorry, I couldn't fetch the list of cryptocurrencies."
+        return response.text
 
     data = response.json()
 
@@ -530,7 +530,7 @@ def get_market_chart(crypto, days=30):
     response = requests.get(url, headers=headers)
 
     if response.status_code != 200:
-        return f"Couldn't fetch market chart data for {crypto}."
+        return response.text
 
     data = response.json()
     prices = data.get("prices", [])
@@ -575,7 +575,7 @@ def get_crypto_categories():
     response = requests.get(url, headers=headers)
 
     if response.status_code != 200:
-        return "Couldn't fetch crypto categories."
+        return response.text
 
     data = response.json()
     categories = ", ".join([category["name"] for category in data[:10]])  # Limit to 10 categories
@@ -588,7 +588,7 @@ def get_nft_data(nft_name):
     response = requests.get(url, headers=headers)
 
     if response.status_code != 200:
-        return f"Couldn't fetch NFT data for {nft_name}."
+        return response.text
 
     data = response.json()
     floor_price = data.get("floor_price", {}).get("usd", "N/A")
@@ -602,7 +602,7 @@ def get_exchanges(limit=10):
     response = requests.get(url, headers=headers)
 
     if response.status_code != 200:
-        return "Couldn't fetch the list of exchanges."
+        return response.text
 
     data = response.json()
     exchange_list = "\n".join([f"{i+1}. {exchange['name']}" for i, exchange in enumerate(data[:limit])])
@@ -615,7 +615,7 @@ def get_exchange_details(exchange):
     response = requests.get(url, headers=headers)
 
     if response.status_code != 200:
-        return f"Couldn't fetch data for {exchange}."
+        return response.text
 
     data = response.json()
     year_established = data.get("year_established", "N/A")
@@ -624,26 +624,44 @@ def get_exchange_details(exchange):
 
     return f"Exchange: {exchange.capitalize()}\n🌍 Country: **{country}**\n📅 Established: **{year_established}**\n📊 24h BTC Trade Volume: **{trade_volume} BTC**"
 
-# Function to fetch crypto market data from CoinGecko API
 def get_crypto_data(crypto, intent):
-    url = f"https://api.coingecko.com/api/v3/simple/price?ids={crypto}&vs_currencies=usd"
-    response = requests.get(url, headers=headers)
 
-    if response.status_code != 200:
-        return response.text
-
-    data = response.json()
-    market=data.get("market_data", {})
-
+    # -------- PRICE (Simple endpoint) --------
     if intent == "price":
-        return f"The current price of {crypto.capitalize()} is ${data[crypto]['usd']}"
-    
+        url = f"https://api.coingecko.com/api/v3/simple/price?ids={crypto}&vs_currencies=usd"
+        r = requests.get(url, headers=headers)
+
+        if r.status_code != 200:
+            return r.text
+
+        data = r.json()
+
+        if crypto not in data:
+            return "Crypto not found."
+
+        price = data[crypto]["usd"]
+        return f"The current price of {crypto.capitalize()} is ${price}"
+
+    # -------- MARKET DATA (Heavy endpoint) --------
+    url = (
+        f"https://api.coingecko.com/api/v3/coins/{crypto}"
+        "?localization=false&tickers=false&community_data=false&developer_data=false&sparkline=false"
+    )
+
+    r = requests.get(url, headers=headers)
+
+    if r.status_code != 200:
+        return r.text
+
+    data = r.json()
+    market = data.get("market_data", {})
+
     if intent == "market_cap":
         return f"The market cap of {crypto.capitalize()} is ${market.get('market_cap', {}).get('usd')}"
-    
+
     if intent == "supply":
         return f"The circulating supply of {crypto.capitalize()} is {market.get('circulating_supply')} coins"
-    
+
     if intent == "volume":
         return f"The 24h trading volume of {crypto.capitalize()} is ${market.get('total_volume', {}).get('usd')}"
 
