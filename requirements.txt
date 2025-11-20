@@ -2,7 +2,7 @@
 flask
 google-generativeai
 requests
-langchain
+langchain==0.0.350
 googlesearch-python
 selenium
 webdriver-manager
