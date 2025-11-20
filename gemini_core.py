@@ -768,6 +768,7 @@ def process_user_input(user_input):
         model = genai.GenerativeModel("gemini-2.5-flash")
         response = model.generate_content(user_input)
         return response.text.strip().lower()
+    
     if(x!=" "):
         return x
 
