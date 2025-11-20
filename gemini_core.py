@@ -29,7 +29,7 @@ memory = ConversationBufferMemory()
 
 # Function to extract intent and cryptocurrency from user input using Gemini
 def detect_intent_and_crypto(user_input):
-    model = genai.GenerativeModel("gemini-1.5-flash")
+    model = genai.GenerativeModel("gemini-2.5-flash")
 
     prompt = f"""
     You are an AI that extracts structured data from cryptocurrency, NFT, and exchange-related queries.
@@ -186,7 +186,7 @@ Respond in this format ONLY: "<intent>,<keyword>"
 
 User Query: "{user_input}"
 """
-    model = genai.GenerativeModel("gemini-1.5-flash")
+    model = genai.GenerativeModel("gemini-2.5-flash")
     response = model.generate_content(prompt)
     return response.text.strip().lower()
 
@@ -611,16 +611,32 @@ def format_bold_text(text):
     formatted_text = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', text)
     return formatted_text
 
-# Function to use Gemini API for general crypto questions
+def clean_incomplete_sentence(text):
+    # Split text into sentences
+    parts = re.split(r'(?<=[.!?])\s+', text)
+
+    # If the last chunk does NOT end with punctuation → drop it
+    if not re.search(r'[.!?]$', parts[-1]):
+        parts = parts[:-1]
+
+    return "\n".join(parts).strip()
+
 def ask_gemini(query):
     try:
-        model = genai.GenerativeModel("gemini-1.5-flash")
-        response = model.generate_content(query)
-        return format_bold_text(response.text)
-    
+        url = "https://Vaibhav7625-Crypto-Llama-3B-Instruct.hf.space/infer"
+        payload = {"prompt": query}
+        
+        response = requests.post(url, json=payload, timeout=300)
+        result = response.json()["response"].strip()
+
+        # Trim incomplete last line
+        cleaned = clean_incomplete_sentence(result)
+
+        return format_bold_text(cleaned.strip())
 
     except Exception as e:
-        return f"An unexpected error occurred😔\nTry refreshing the page"
+        print("Error:", e)
+        return f"An unexpected error occurred 😔\nTry again later."
 
 # Function to process user input and decide which API to call
 def process_user_input(user_input):
