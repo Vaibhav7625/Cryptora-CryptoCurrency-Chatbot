@@ -25,6 +25,11 @@ genai.configure(api_key=GEMINI_API_KEY)
 
 BASE_URL = "https://cryptopanic.com/api/v1/posts/"
 
+headers = {
+    "User-Agent": "Mozilla/5.0",
+    "Accept": "application/json"
+}
+
 class MemoryAdapter:
     def __init__(self):
         self._hist = ChatMessageHistory()
@@ -448,7 +453,7 @@ def format_news_response(articles):
 
 def get_supported_coins(limit=20):
     url = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50&page=1"
-    response = requests.get(url)
+    response = requests.get(url, headers=headers)
 
     if response.status_code != 200:
         return "Sorry, I couldn't fetch the list of cryptocurrencies."
@@ -505,7 +510,7 @@ def get_historical_data(crypto, date_str):
 
     # ✅ Fetch historical price from CoinGecko
     url = f"https://api.coingecko.com/api/v3/coins/{crypto}/history?date={requested_date.strftime('%d-%m-%Y')}&localization=false"
-    response = requests.get(url)
+    response = requests.get(url, headers=headers)
 
     if response.status_code != 200:
         return f"Couldn't fetch historical data for {crypto} on {date_str}."
@@ -522,7 +527,7 @@ def get_historical_data(crypto, date_str):
 
 def get_market_chart(crypto, days=30):
     url = f"https://api.coingecko.com/api/v3/coins/{crypto}/market_chart?vs_currency=usd&days={days}"
-    response = requests.get(url)
+    response = requests.get(url, headers=headers)
 
     if response.status_code != 200:
         return f"Couldn't fetch market chart data for {crypto}."
@@ -552,7 +557,7 @@ def get_market_chart(crypto, days=30):
 
 def get_ohlc(crypto, days=7):
     url = f"https://api.coingecko.com/api/v3/coins/{crypto}/ohlc?vs_currency=usd&days={days}"
-    response = requests.get(url)
+    response = requests.get(url, headers=headers)
 
     if response.status_code != 200:
         return f"Couldn't fetch OHLC data for {crypto}."
@@ -567,7 +572,7 @@ def get_ohlc(crypto, days=7):
 
 def get_crypto_categories():
     url = "https://api.coingecko.com/api/v3/coins/categories"
-    response = requests.get(url)
+    response = requests.get(url, headers=headers)
 
     if response.status_code != 200:
         return "Couldn't fetch crypto categories."
@@ -580,7 +585,7 @@ def get_crypto_categories():
 # ✅ Fetch NFT Data
 def get_nft_data(nft_name):
     url = f"https://api.coingecko.com/api/v3/nfts/{nft_name}"
-    response = requests.get(url)
+    response = requests.get(url, headers=headers)
 
     if response.status_code != 200:
         return f"Couldn't fetch NFT data for {nft_name}."
@@ -594,7 +599,7 @@ def get_nft_data(nft_name):
 # ✅ Fetch List of Exchanges
 def get_exchanges(limit=10):
     url = "https://api.coingecko.com/api/v3/exchanges"
-    response = requests.get(url)
+    response = requests.get(url, headers=headers)
 
     if response.status_code != 200:
         return "Couldn't fetch the list of exchanges."
@@ -607,7 +612,7 @@ def get_exchanges(limit=10):
 # ✅ Fetch Specific Exchange Details
 def get_exchange_details(exchange):
     url = f"https://api.coingecko.com/api/v3/exchanges/{exchange}"
-    response = requests.get(url)
+    response = requests.get(url, headers=headers)
 
     if response.status_code != 200:
         return f"Couldn't fetch data for {exchange}."
@@ -622,7 +627,7 @@ def get_exchange_details(exchange):
 # Function to fetch crypto market data from CoinGecko API
 def get_crypto_data(crypto, intent):
     url = f"https://api.coingecko.com/api/v3/coins/{crypto}"
-    response = requests.get(url)
+    response = requests.get(url, headers=headers)
 
     if response.status_code != 200:
         return "Sorry, I couldn't fetch the data. Try again later."
