@@ -1,7 +1,7 @@
 import google.generativeai as genai
 import requests
 from datetime import datetime, timedelta
-from langchain.memory import ConversationBufferMemory
+from langchain_community.memory import ConversationBufferMemory
 from googlesearch import search
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service

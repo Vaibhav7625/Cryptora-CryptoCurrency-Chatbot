@@ -2,7 +2,9 @@
 flask
 google-generativeai
 requests
-langchain==0.0.350
+langchain
+langchain-community
+langchain-core
 googlesearch-python
 selenium
 webdriver-manager
@@ -12,5 +14,3 @@ pydub
 nltk
 lxml_html_clean
 python-dotenv
-langchain-core==0.0.0
-langchain-community==0.0.0
