@@ -764,7 +764,7 @@ def process_user_input(user_input):
     if intent == "general":
         return ask_gemini(user_input)
     
-    if(x=="Error" and x!=" "):
+    if(x=="Error"):
         model = genai.GenerativeModel("gemini-2.5-flash")
         response = model.generate_content(user_input)
         return response.text.strip().lower()
