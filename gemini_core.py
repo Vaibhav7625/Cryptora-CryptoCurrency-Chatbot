@@ -735,7 +735,8 @@ def process_user_input(user_input):
     if intent in ["price", "market_cap", "supply", "volume"]:
         if asset != "unknown":
             x=get_crypto_data(asset, intent)
-        return "Please specify a cryptocurrency (e.g., Bitcoin, Ethereum)."
+        else:
+            return "Please specify a cryptocurrency (e.g., Bitcoin, Ethereum)."
 
     if intent == "list_coins":
         x=get_supported_coins(number)
