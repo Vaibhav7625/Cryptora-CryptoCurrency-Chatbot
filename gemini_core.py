@@ -456,7 +456,7 @@ def get_supported_coins(limit=20):
     response = requests.get(url, headers=headers)
 
     if response.status_code != 200:
-        return response.text
+        return "Error"
 
     data = response.json()
 
@@ -530,7 +530,7 @@ def get_market_chart(crypto, days=30):
     response = requests.get(url, headers=headers)
 
     if response.status_code != 200:
-        return response.text
+        return "Error"
 
     data = response.json()
     prices = data.get("prices", [])
@@ -560,7 +560,7 @@ def get_ohlc(crypto, days=7):
     response = requests.get(url, headers=headers)
 
     if response.status_code != 200:
-        return response.text
+        return "Error"
 
     data = response.json()
     if not data:
@@ -575,7 +575,7 @@ def get_crypto_categories():
     response = requests.get(url, headers=headers)
 
     if response.status_code != 200:
-        return response.text
+        return "Error"
 
     data = response.json()
     categories = ", ".join([category["name"] for category in data[:10]])  # Limit to 10 categories
@@ -588,7 +588,7 @@ def get_nft_data(nft_name):
     response = requests.get(url, headers=headers)
 
     if response.status_code != 200:
-        return response.text
+        return "Error"
 
     data = response.json()
     floor_price = data.get("floor_price", {}).get("usd", "N/A")
@@ -602,7 +602,7 @@ def get_exchanges(limit=10):
     response = requests.get(url, headers=headers)
 
     if response.status_code != 200:
-        return response.text
+        return "Error"
 
     data = response.json()
     exchange_list = "\n".join([f"{i+1}. {exchange['name']}" for i, exchange in enumerate(data[:limit])])
@@ -615,7 +615,7 @@ def get_exchange_details(exchange):
     response = requests.get(url, headers=headers)
 
     if response.status_code != 200:
-        return response.text
+        return "Error"
 
     data = response.json()
     year_established = data.get("year_established", "N/A")
@@ -727,39 +727,48 @@ def process_user_input(user_input):
         "output": f"{intent},{asset},{date},{number}"
         })
     
+    x=" "
+
     if intent == "news":
         return news_related_query(user_input, asset, date, number)
 
     if intent in ["price", "market_cap", "supply", "volume"]:
         if asset != "unknown":
-            return get_crypto_data(asset, intent)
+            x=get_crypto_data(asset, intent)
         return "Please specify a cryptocurrency (e.g., Bitcoin, Ethereum)."
 
     if intent == "list_coins":
-        return get_supported_coins(number)
+        x=get_supported_coins(number)
     
     if intent == "nft" and asset != "unknown":
-        return get_nft_data(asset)
+        x=get_nft_data(asset)
 
     if intent == "list_exchanges":
-        return get_exchanges(number)
+        x=get_exchanges(number)
 
     if intent == "exchange" and asset != "unknown":
-        return get_exchange_details(asset)
+        x=get_exchange_details(asset)
 
     if intent == "history" and asset != "unknown" and date != "unknown":
-        return get_historical_data(asset, date)
+        x=get_historical_data(asset, date)
 
     if intent == "market_chart" and asset != "unknown":
-        return get_market_chart(asset,number)
+        x=get_market_chart(asset,number)
 
     if intent == "ohlc" and asset != "unknown":
-        return get_ohlc(asset)
+        x=get_ohlc(asset)
 
     if intent == "categories":
-        return get_crypto_categories()
+        x=get_crypto_categories()
 
     if intent == "general":
         return ask_gemini(user_input)
+    
+    if(x=="Error" and x!=" "):
+        model = genai.GenerativeModel("gemini-2.5-flash")
+        response = model.generate_content(user_input)
+        return response.text.strip().lower()
+    if(x!=" "):
+        return x
 
     return "I'm not sure how to answer that. Try asking about a cryptocurrency or its market data."
