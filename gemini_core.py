@@ -636,16 +636,16 @@ def get_crypto_data(crypto, intent):
     market=data.get("market_data", {})
 
     if intent == "price":
-        return f"The current price of {crypto.capitalize()} is ${data[crypto]["usd"]}"
+        return f"The current price of {crypto.capitalize()} is ${data[crypto]['usd']}"
     
     if intent == "market_cap":
-        return f"The market cap of {crypto.capitalize()} is ${market.get("market_cap", {}).get("usd")}"
+        return f"The market cap of {crypto.capitalize()} is ${market.get('market_cap', {}).get('usd')}"
     
     if intent == "supply":
-        return f"The circulating supply of {crypto.capitalize()} is {market.get("circulating_supply")} coins"
+        return f"The circulating supply of {crypto.capitalize()} is {market.get('circulating_supply')} coins"
     
     if intent == "volume":
-        return f"The 24h trading volume of {crypto.capitalize()} is ${market.get("total_volume", {}).get("usd")}"
+        return f"The 24h trading volume of {crypto.capitalize()} is ${market.get('total_volume', {}).get('usd')}"
 
     return "I couldn't process your request."
 
