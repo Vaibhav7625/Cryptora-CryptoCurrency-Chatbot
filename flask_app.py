@@ -6,6 +6,18 @@ import tempfile
 import base64
 import logging
 import speech_recognition as sr
+import nltk
+
+# Download only if missing
+try:
+    nltk.data.find("tokenizers/punkt")
+except LookupError:
+    nltk.download("punkt")
+
+try:
+    nltk.data.find("corpora/stopwords")
+except LookupError:
+    nltk.download("stopwords")
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
