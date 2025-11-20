@@ -456,7 +456,6 @@ def get_supported_coins(limit=20):
     response = requests.get(url, headers=headers)
 
     if response.status_code != 200:
-        print("Status:", response.status_code, response.text)
         return "Sorry, I couldn't fetch the list of cryptocurrencies."
 
     data = response.json()
@@ -514,7 +513,6 @@ def get_historical_data(crypto, date_str):
     response = requests.get(url, headers=headers)
 
     if response.status_code != 200:
-        print("Status:", response.status_code, response.text)
         return f"Couldn't fetch historical data for {crypto} on {date_str}."
 
     data = response.json()
@@ -532,7 +530,6 @@ def get_market_chart(crypto, days=30):
     response = requests.get(url, headers=headers)
 
     if response.status_code != 200:
-        print("Status:", response.status_code, response.text)
         return f"Couldn't fetch market chart data for {crypto}."
 
     data = response.json()
@@ -563,7 +560,6 @@ def get_ohlc(crypto, days=7):
     response = requests.get(url, headers=headers)
 
     if response.status_code != 200:
-        print("Status:", response.status_code, response.text)
         return f"Couldn't fetch OHLC data for {crypto}."
 
     data = response.json()
@@ -579,7 +575,6 @@ def get_crypto_categories():
     response = requests.get(url, headers=headers)
 
     if response.status_code != 200:
-        print("Status:", response.status_code, response.text)
         return "Couldn't fetch crypto categories."
 
     data = response.json()
@@ -593,7 +588,6 @@ def get_nft_data(nft_name):
     response = requests.get(url, headers=headers)
 
     if response.status_code != 200:
-        print("Status:", response.status_code, response.text)
         return f"Couldn't fetch NFT data for {nft_name}."
 
     data = response.json()
@@ -608,7 +602,6 @@ def get_exchanges(limit=10):
     response = requests.get(url, headers=headers)
 
     if response.status_code != 200:
-        print("Status:", response.status_code, response.text)
         return "Couldn't fetch the list of exchanges."
 
     data = response.json()
@@ -622,7 +615,6 @@ def get_exchange_details(exchange):
     response = requests.get(url, headers=headers)
 
     if response.status_code != 200:
-        print("Status:", response.status_code, response.text)
         return f"Couldn't fetch data for {exchange}."
 
     data = response.json()
@@ -638,8 +630,7 @@ def get_crypto_data(crypto, intent):
     response = requests.get(url, headers=headers)
 
     if response.status_code != 200:
-        print("Status:", response.status_code, response.text)
-        return "Sorry, I couldn't fetch the data. Try again later."
+        return response.text
 
     data = response.json()
 
