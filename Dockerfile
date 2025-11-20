@@ -1,8 +1,11 @@
-# Dockerfile (place at repo root)
 FROM python:3.11-slim
 
-# ----- Install system dependencies -----
+# Avoid TZ prompt
 ENV DEBIAN_FRONTEND=noninteractive
+
+# ---------------------------------------------------------
+# Install system dependencies
+# ---------------------------------------------------------
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     wget \
@@ -15,43 +18,53 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxslt1-dev \
     libjpeg-dev \
     zlib1g-dev \
-    fonts-liberation \
     libnss3 \
-    libgconf-2-4 \
     libxss1 \
     libasound2 \
     libatk1.0-0 \
     libatk-bridge2.0-0 \
     libgtk-3-0 \
+    libgbm1 \
+    libu2f-udev \
+    fonts-liberation \
     xvfb \
-    chromium \
-    chromium-driver \
  && rm -rf /var/lib/apt/lists/*
 
-# Set chrome executable env variables (used by Selenium)
-ENV CHROME_BIN=/usr/bin/chromium
-ENV CHROME_PATH=/usr/bin/chromium
+# ---------------------------------------------------------
+# Install Chrome (official Google Chrome stable)
+# ---------------------------------------------------------
+RUN wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add - && \
+    echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" \
+        > /etc/apt/sources.list.d/google-chrome.list
 
-# ----- Create app directory -----
+RUN apt-get update && apt-get install -y google-chrome-stable && \
+    rm -rf /var/lib/apt/lists/*
+
+# ---------------------------------------------------------
+# Install ChromeDriver matching Chrome version
+# ---------------------------------------------------------
+RUN CHROME_VERSION=$(google-chrome --version | sed 's/[^0-9.]//g' | cut -d '.' -f 1) && \
+    echo "Chrome major version: $CHROME_VERSION" && \
+    wget -q "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${CHROME_VERSION}" -O LATEST && \
+    DRIVER_VERSION=$(cat LATEST) && \
+    wget -q "https://chromedriver.storage.googleapis.com/${DRIVER_VERSION}/chromedriver_linux64.zip" && \
+    unzip chromedriver_linux64.zip && \
+    mv chromedriver /usr/local/bin/chromedriver && chmod +x /usr/local/bin/chromedriver && \
+    rm chromedriver_linux64.zip LATEST
+
+# Tell Selenium where Chrome and Chromedriver live
+ENV CHROME_BIN=/usr/bin/google-chrome
+ENV CHROMEDRIVER_PATH=/usr/local/bin/chromedriver
+
+# ---------------------------------------------------------
+# Create app folder & install Python deps
+# ---------------------------------------------------------
 WORKDIR /app
 COPY . /app
 
-# Avoid cache issues while installing Python packages
-ENV PIP_NO_CACHE_DIR=1
-ENV PYTHONDONTWRITEBYTECODE=1
-
-# ----- Install Python dependencies -----
-# If your requirements file has problematic or nonexistent package names (e.g. lxml_html_clean),
-# pip will fail. Edit requirements if pip fails.
-RUN pip install --upgrade pip
+RUN pip install --upgrade pip wheel setuptools
 RUN pip install -r requirements.txt
 
-# Optional: expose port used by flask_app.py (5000 by default)
 EXPOSE 5000
 
-# Ensure Flask uses 0.0.0.0 host inside container
-ENV FLASK_APP=flask_app.py
-ENV FLASK_RUN_HOST=0.0.0.0
-
-# Start command — keep same entrypoint you used locally
 CMD ["python", "flask_app.py"]
