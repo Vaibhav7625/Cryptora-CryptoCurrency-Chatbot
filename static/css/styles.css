@@ -27,9 +27,6 @@ body {
     position: relative;
 }
 
-/* (Trimmed for brevity. Add full styles from your previous CSS content) */
-/* Copy all CSS from the original index.html and paste it here */
-
 /* Animated background elements */
 .bg-elements {
     position: absolute;
@@ -153,7 +150,6 @@ body {
     color: #f1f1f1;
 }
 
-
 .chat-container {
     flex: 1;
     padding: 20px;
@@ -164,8 +160,8 @@ body {
 }
 
 .message {
-    max-width: 60%; /* Reduced width for better readability */
-    margin-bottom: 30px; /* Increased to accommodate timestamp without overlap */
+    max-width: 60%;
+    margin-bottom: 30px;
     padding: 14px 20px;
     border-radius: 18px;
     line-height: 1.5;
@@ -201,27 +197,12 @@ body {
     border-bottom-left-radius: 4px;
 }
 
-.message::before {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    width: 0;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--golden), transparent);
-    animation: messageLine 2s forwards;
-}
-
-@keyframes messageLine {
-    0% { width: 0; left: 50%; }
-    100% { width: 100%; left: 0; }
-}
-
 .message-time {
     position: absolute;
-    bottom: -25px; /* Positioned further down to avoid overlap */
+    bottom: -25px;
     font-size: 11px;
     color: rgba(212, 175, 55, 0.6);
-    white-space: nowrap; /* Prevent wrapping */
+    white-space: nowrap;
 }
 
 .user-message .message-time {
@@ -293,7 +274,7 @@ body {
 }
 
 .message-input {
-    width: 60%; /* Reduced width for better symmetry with messages */
+    width: 60%;
     padding: 15px 20px;
     border-radius: 30px;
     background-color: rgba(20, 20, 30, 0.8);
@@ -313,7 +294,7 @@ body {
     border-color: var(--golden);
     box-shadow: 0 0 15px rgba(212, 175, 55, 0.3), inset 0 2px 5px rgba(0, 0, 0, 0.2);
     background-color: rgba(30, 30, 40, 0.9);
-    width: 65%; /* Subtle expansion on focus */
+    width: 65%;
     transition: all 0.3s ease;
 }
 
@@ -321,29 +302,66 @@ body {
     animation: glowingBorder 1.5s infinite alternate;
 }
 
-/* Input Container Styles - ensure proper alignment */
-.input-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-    background-color: rgba(0, 0, 0, 0.7);
-    border-top: 1px solid rgba(212, 175, 55, 0.3);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.3);
-    position: relative;
-    z-index: 10;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
 @keyframes glowingBorder {
     from { box-shadow: 0 0 5px rgba(212, 175, 55, 0.5), inset 0 2px 5px rgba(0, 0, 0, 0.2); }
     to { box-shadow: 0 0 20px rgba(212, 175, 55, 0.8), inset 0 2px 5px rgba(0, 0, 0, 0.2); }
+}
+
+/* Voice controls */
+.voice-controls {
+    display: flex;
+    gap: 10px;
+    margin-left: 10px;
+}
+
+.voice-button {
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.2) 0%, rgba(212, 175, 55, 0.3) 100%);
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    color: var(--golden);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.voice-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.3) 0%, rgba(212, 175, 55, 0.4) 100%);
+}
+
+.voice-button:active {
+    transform: scale(0.95);
+}
+
+.voice-button.recording {
+    background: linear-gradient(135deg, #ff4444 0%, #cc0000 100%);
+    animation: recordPulse 1.5s infinite;
+}
+
+.voice-button.speaking {
+    background: linear-gradient(135deg, #44ff44 0%, #00cc00 100%);
+    animation: speakPulse 1s infinite;
+}
+
+.voice-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+@keyframes recordPulse {
+    0%, 100% { box-shadow: 0 0 10px rgba(255, 68, 68, 0.5); }
+    50% { box-shadow: 0 0 25px rgba(255, 68, 68, 0.8); }
+}
+
+@keyframes speakPulse {
+    0%, 100% { box-shadow: 0 0 10px rgba(68, 255, 68, 0.5); }
+    50% { box-shadow: 0 0 25px rgba(68, 255, 68, 0.8); }
 }
 
 .send-button {
@@ -361,30 +379,6 @@ body {
     align-items: center;
     justify-content: center;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    position: relative;
-    overflow: hidden;
-}
-
-.send-button::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
-    opacity: 0;
-    transition: opacity 0.3s;
-}
-
-.send-button:hover::before {
-    opacity: 1;
-    animation: rotate 2s linear infinite;
-}
-
-@keyframes rotate {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
 }
 
 .send-button:hover {
@@ -428,7 +422,7 @@ body {
     }
 }
 
-/* Crypto themed scrollbar */
+/* Scrollbar */
 ::-webkit-scrollbar {
     width: 6px;
 }
@@ -466,21 +460,28 @@ body {
     }
     
     .message-input {
-        width: 70%;
+        width: 50%;
         padding: 12px 15px;
+    }
+
+    .voice-controls {
+        gap: 8px;
+        margin-left: 8px;
+    }
+
+    .voice-button, .send-button {
+        height: 45px;
+        width: 45px;
     }
 }
 
 @media screen and (max-width: 600px) {
-    /* Ensure text is readable in mobile WebView */
     body {
-        /* Cross-browser text size adjustment */
         -webkit-text-size-adjust: 100%;
         -ms-text-size-adjust: 100%;
-        text-size-adjust: 100%; /* Standard property */
-      }
+        text-size-adjust: 100%;
+    }
     
-    /* Optimize the response box for mobile WebView */
     .response-box {
         width: 100% !important;
         max-width: 100% !important;
@@ -511,33 +512,34 @@ body {
         word-break: break-all !important;
     }
 
-    /* Adjust chat container for WebView */
     .chat-container {
         padding: 12px !important;
     }
     
-    /* Make messages fill more of the screen width in WebView */
     .message {
         max-width: 85% !important;
         padding: 12px 16px !important;
     }
     
-    /* Ensure the input container works well in WebView */
     .input-container {
         padding: 12px !important;
     }
     
     .message-input {
-        width: 75% !important;
+        width: 45% !important;
         padding: 10px 15px !important;
         font-size: 14px !important;
     }
     
-    /* Fix the send button for WebView */
-    .send-button {
-        height: 45px !important;
-        width: 45px !important;
-        margin-left: 10px !important;
+    .voice-button, .send-button {
+        height: 40px !important;
+        width: 40px !important;
+        margin-left: 8px !important;
+    }
+
+    .voice-controls {
+        gap: 6px !important;
+        margin-left: 6px !important;
     }
 }
 

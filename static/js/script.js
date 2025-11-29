@@ -4,6 +4,56 @@ document.addEventListener('DOMContentLoaded', function () {
     const sendButton = document.getElementById('send-button');
     const typingIndicator = document.getElementById('typing-indicator');
     const initialMessageTime = document.getElementById('initial-message-time');
+    const micButton = document.getElementById('mic-button');
+    const speakerButton = document.getElementById('speaker-button');
+
+    // Voice recognition setup
+    let recognition = null;
+    let isRecording = false;
+    
+    // Speech synthesis setup
+    let isSpeaking = false;
+    let currentUtterance = null;
+
+    // Initialize speech recognition if available
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = 'en-US';
+
+        recognition.onstart = function() {
+            isRecording = true;
+            micButton.classList.add('recording');
+        };
+
+        recognition.onresult = function(event) {
+            const transcript = event.results[0][0].transcript;
+            messageInput.value = transcript;
+            isRecording = false;
+            micButton.classList.remove('recording');
+        };
+
+        recognition.onerror = function(event) {
+            console.error('Speech recognition error:', event.error);
+            isRecording = false;
+            micButton.classList.remove('recording');
+        };
+
+        recognition.onend = function() {
+            isRecording = false;
+            micButton.classList.remove('recording');
+        };
+    } else {
+        // Hide mic button if not supported
+        if (micButton) micButton.style.display = 'none';
+    }
+
+    // Check speech synthesis support
+    if (!('speechSynthesis' in window)) {
+        if (speakerButton) speakerButton.style.display = 'none';
+    }
 
     initialMessageTime.textContent = getCurrentTime();
 
@@ -19,7 +69,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function addMessage(message, isUser) {
         const messageElement = document.createElement('div');
         messageElement.classList.add('message', isUser ? 'user-message' : 'bot-message');
-        messageElement.innerHTML = message; // ✅ changed from textContent to innerHTML
+        messageElement.innerHTML = message;
 
         const timeElement = document.createElement('div');
         timeElement.classList.add('message-time');
@@ -65,16 +115,117 @@ document.addEventListener('DOMContentLoaded', function () {
             const data = await response.json();
             hideTypingIndicator();
             addMessage(data.response, false);
+            
+            // Auto-speak if speaker button is active
+            if (speakerButton && speakerButton.dataset.autoSpeak === 'true') {
+                speakText(data.response);
+            }
         } catch (err) {
             hideTypingIndicator();
             addMessage("⚠️ Error getting response. Try again.", false);
         }
     }
 
+    function toggleRecording() {
+        if (!recognition) {
+            alert('Speech recognition is not supported in your browser.');
+            return;
+        }
+
+        if (isRecording) {
+            recognition.stop();
+        } else {
+            try {
+                recognition.start();
+            } catch (err) {
+                console.error('Error starting recognition:', err);
+            }
+        }
+    }
+
+    function speakText(text) {
+        if (!('speechSynthesis' in window)) {
+            alert('Text-to-speech is not supported in your browser.');
+            return;
+        }
+
+        // Stop any ongoing speech
+        if (isSpeaking) {
+            window.speechSynthesis.cancel();
+            isSpeaking = false;
+            speakerButton.classList.remove('speaking');
+            return;
+        }
+
+        // Remove HTML tags for speech
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = text;
+        const cleanText = tempDiv.textContent || tempDiv.innerText || '';
+
+        if (!cleanText.trim()) return;
+
+        currentUtterance = new SpeechSynthesisUtterance(cleanText);
+        currentUtterance.rate = 1.0;
+        currentUtterance.pitch = 1.0;
+        currentUtterance.volume = 1.0;
+
+        currentUtterance.onstart = function() {
+            isSpeaking = true;
+            speakerButton.classList.add('speaking');
+        };
+
+        currentUtterance.onend = function() {
+            isSpeaking = false;
+            speakerButton.classList.remove('speaking');
+        };
+
+        currentUtterance.onerror = function(event) {
+            console.error('Speech synthesis error:', event.error);
+            isSpeaking = false;
+            speakerButton.classList.remove('speaking');
+        };
+
+        window.speechSynthesis.speak(currentUtterance);
+    }
+
+    function toggleAutoSpeak() {
+        const isAutoSpeak = speakerButton.dataset.autoSpeak === 'true';
+        speakerButton.dataset.autoSpeak = isAutoSpeak ? 'false' : 'true';
+        
+        if (isAutoSpeak) {
+            // Turning off - stop any current speech
+            if (isSpeaking) {
+                window.speechSynthesis.cancel();
+                isSpeaking = false;
+                speakerButton.classList.remove('speaking');
+            }
+            speakerButton.style.opacity = '0.6';
+        } else {
+            speakerButton.style.opacity = '1';
+            // Speak the last bot message
+            const lastBotMessage = Array.from(chatContainer.querySelectorAll('.bot-message')).pop();
+            if (lastBotMessage) {
+                const text = lastBotMessage.innerHTML.replace(/<div class="message-time">.*?<\/div>/g, '');
+                speakText(text);
+            }
+        }
+    }
+
+    // Event listeners
     sendButton.addEventListener('click', sendMessage);
     messageInput.addEventListener('keypress', function (e) {
         if (e.key === 'Enter') sendMessage();
     });
+
+    if (micButton) {
+        micButton.addEventListener('click', toggleRecording);
+    }
+
+    if (speakerButton) {
+        speakerButton.addEventListener('click', toggleAutoSpeak);
+        speakerButton.dataset.autoSpeak = 'false';
+        speakerButton.style.opacity = '0.6';
+    }
 
     // Coin animations
     function createCoinBurst() {
@@ -102,92 +253,5 @@ document.addEventListener('DOMContentLoaded', function () {
     setInterval(createFloatingCoin, 5000);
     setTimeout(createCoinBurst, 1000);
 
-    // Falling coin effect
-    function createCoinEffect() {
-        const coin = document.createElement('div');
-        coin.style.position = 'absolute';
-        coin.style.width = Math.random() * 15 + 5 + 'px';
-        coin.style.height = coin.style.width;
-        coin.style.backgroundColor = 'rgba(212, 175, 55, 0.15)';
-        coin.style.borderRadius = '50%';
-        coin.style.border = '1px solid rgba(212, 175, 55, 0.3)';
-        coin.style.zIndex = '-1';
-        coin.style.left = Math.random() * 100 + 'vw';
-        coin.style.top = '-20px';
-        coin.style.animation = `fall ${Math.random() * 10 + 5}s linear forwards`;
-        document.body.appendChild(coin);
-        setTimeout(() => coin.remove(), 15000);
-    }
-
-    const styleSheet = document.createElement('style');
-    styleSheet.textContent = `
-        @keyframes fall {
-            from { transform: translateY(0) rotate(0deg); }
-            to { transform: translateY(100vh) rotate(360deg); }
-        }
-    `;
-    document.head.appendChild(styleSheet);
-
-    setInterval(createCoinEffect, 3000);
     messageInput.focus();
 });
-
-// Add this to your existing script.js file
-
-// Detect if running in WebView environment
-function isRunningInWebView() {
-    // This is a heuristic - WebViews often have specific User Agent strings
-    const userAgent = navigator.userAgent.toLowerCase();
-    return /wv/.test(userAgent) || 
-           /android/.test(userAgent) && /version\/[0-9.]+/.test(userAgent) ||
-           /; wv\)/.test(userAgent);
-}
-
-// Apply WebView-specific adjustments
-document.addEventListener('DOMContentLoaded', function() {
-    if (isRunningInWebView()) {
-        // Add a class to the body to enable WebView-specific CSS
-        document.body.classList.add('webview-mode');
-        
-        // Make sure font size is appropriate for WebView
-        document.body.style.fontSize = '14px';
-        
-        // Ensure proper viewport height in WebView
-        function setAppHeight() {
-            document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`);
-            document.body.style.height = `${window.innerHeight}px`;
-            
-            // Adjust chat container height
-            const headerHeight = document.querySelector('.header').offsetHeight;
-            const inputContainerHeight = document.querySelector('.input-container').offsetHeight;
-            const chatContainer = document.getElementById('chat-container');
-            chatContainer.style.height = `calc(${window.innerHeight}px - ${headerHeight}px - ${inputContainerHeight}px)`;
-        }
-        
-        // Set initial height and update on resize
-        setAppHeight();
-        window.addEventListener('resize', setAppHeight);
-        
-        // Fix scrolling issues in WebView
-        const chatContainer = document.getElementById('chat-container');
-        
-        // Enhanced scroll to bottom function for WebView
-        window.scrollToBottom = function() {
-            setTimeout(() => {
-                chatContainer.scrollTop = chatContainer.scrollHeight;
-            }, 100);
-        };
-        
-        // Override the addMessage function with WebView optimizations if it exists
-        if (window.addMessage) {
-            const originalAddMessage = window.addMessage;
-            window.addMessage = function(message, sender) {
-                originalAddMessage(message, sender);
-                window.scrollToBottom();
-            };
-        }
-    }
-});
-
-// Fix WebView touch events if needed
-document.addEventListener('touchstart', function() {}, {passive: true});

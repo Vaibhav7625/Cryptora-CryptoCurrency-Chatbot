@@ -2,18 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <!-- Enhanced viewport tag for better WebView rendering -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Add mobile web app capability -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <!-- Disable text resizing -->
-    <meta name="text-size-adjust" content="100%">
     <title>Cryptora | Premium Crypto Assistant</title>
-    <!-- Preload font for faster rendering -->
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" as="style">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    <!-- Inline critical CSS to prevent flash of unstyled content -->
     <style>
         body {
             margin: 0;
@@ -24,21 +18,8 @@
             height: 100vh;
             overflow: hidden;
         }
-        /* Force hardware acceleration for smoother animations */
         * {
             -webkit-tap-highlight-color: transparent;
-            -webkit-overflow-scrolling: touch;
-            backface-visibility: hidden;
-            transform: translateZ(0);
-        }
-        /* Make sure response boxes look good in WebView */
-        .response-box {
-            background-color: rgba(20, 20, 30, 0.9);
-            padding: 12px;
-            margin: 10px 0;
-            border-left: 4px solid gold;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
         }
     </style>
 </head>
@@ -69,39 +50,34 @@
     
     <div class="input-container">
         <input type="text" class="message-input" id="message-input" placeholder="Ask about crypto...">
+        
+        <div class="voice-controls">
+            <!-- Microphone button for voice input -->
+            <button type="button" class="voice-button" id="mic-button" aria-label="Voice input" title="Click to speak">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 1C10.34 1 9 2.34 9 4V12C9 13.66 10.34 15 12 15C13.66 15 15 13.66 15 12V4C15 2.34 13.66 1 12 1Z" fill="currentColor"/>
+                    <path d="M17 11C17 14.31 14.31 17 11 17C7.69 17 5 14.31 5 11H3C3 15.42 6.58 19 11 19V22H13V19C17.42 19 21 15.42 21 11H19C19 14.31 16.31 17 13 17C13 14.31 17 14.31 17 11Z" fill="currentColor"/>
+                </svg>
+            </button>
+            
+            <!-- Speaker button for text-to-speech -->
+            <button type="button" class="voice-button" id="speaker-button" aria-label="Text to speech" title="Click to enable auto-speak">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 9V15H7L12 20V4L7 9H3Z" fill="currentColor"/>
+                    <path d="M16.5 12C16.5 10.23 15.48 8.71 14 7.97V16.02C15.48 15.29 16.5 13.77 16.5 12Z" fill="currentColor"/>
+                    <path d="M14 3.23V5.29C16.89 6.15 19 8.83 19 12C19 15.17 16.89 17.85 14 18.71V20.77C18.01 19.86 21 16.28 21 12C21 7.72 18.01 4.14 14 3.23Z" fill="currentColor"/>
+                </svg>
+            </button>
+        </div>
+        
         <button type="button" class="send-button" id="send-button" aria-label="Send message">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M22 2L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
         </button>
     </div>
 
-    <!-- Add this hidden element for WebView status detection -->
-    <div id="webview-detector" style="display:none;"></div>
-
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
-    <!-- Prevent zoom on double tap for iOS WebView -->
-    <script>
-        // Prevent double-tap zoom in iOS WebView
-        var lastTouchEnd = 0;
-        document.addEventListener('touchend', function(event) {
-            var now = (new Date()).getTime();
-            if (now - lastTouchEnd <= 300) {
-                event.preventDefault();
-            }
-            lastTouchEnd = now;
-        }, false);
-        
-        // Initialize time for initial message
-        document.addEventListener('DOMContentLoaded', function() {
-            const initialMessageTime = document.getElementById('initial-message-time');
-            if (initialMessageTime) {
-                const now = new Date();
-                initialMessageTime.textContent = now.getHours() + ':' + 
-                    (now.getMinutes() < 10 ? '0' : '') + now.getMinutes();
-            }
-        });
-    </script>
 </body>
 </html>
