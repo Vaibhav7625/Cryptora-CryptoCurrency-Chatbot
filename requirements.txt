@@ -1,13 +1,9 @@
-
 flask
 google-generativeai
 requests
 langchain
 langchain-community
 langchain-core
-googlesearch-python
-selenium
-webdriver-manager
 newspaper3k
 speechrecognition
 pydub
