@@ -7,6 +7,5 @@ langchain-core
 newspaper3k
 speechrecognition
 pydub
-nltk
 lxml_html_clean
 python-dotenv
