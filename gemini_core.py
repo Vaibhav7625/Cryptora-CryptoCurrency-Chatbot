@@ -682,6 +682,26 @@ def clean_incomplete_sentence(text):
 
     return "\n".join(parts).strip()
 
+def remove_until_capital(text):
+    # Finds the first word that begins with capital (A–Z)
+    match = re.search(r"\b[A-Z][a-zA-Z]*\b", text)
+    
+    if not match:
+        return text  # no capital word found
+    
+    # Cut the text starting exactly at that word
+    return text[match.start():]
+
+def remove_trailing_questions(text):
+    # Split into lines while preserving \n using splitlines(True)
+    lines = text.splitlines(True)
+
+    # Remove trailing lines that are question sentences
+    while lines and re.match(r'^\s*[^.!?\n]*\?\s*$', lines[-1]):
+        lines.pop()
+
+    return "".join(lines).rstrip()
+
 def ask_gemini(query):
     try:
         url = "https://Vaibhav7625-Crypto-Llama-3B-Instruct.hf.space/infer"
@@ -692,6 +712,8 @@ def ask_gemini(query):
 
         # Trim incomplete last line
         cleaned = clean_incomplete_sentence(result)
+        cleaned = remove_until_capital(cleaned)
+        cleaned = remove_trailing_questions(cleaned)
 
         return format_bold_text(cleaned.strip())
 
