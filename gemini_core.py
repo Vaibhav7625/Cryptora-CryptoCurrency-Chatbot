@@ -2,13 +2,7 @@ import google.generativeai as genai
 import requests
 from datetime import datetime, timedelta
 from langchain_community.chat_message_histories import ChatMessageHistory
-from googlesearch import search
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.common.by import By
-from webdriver_manager.chrome import ChromeDriverManager
 from newspaper import Article
-from googlesearch import search
 import time
 import re
 from dotenv import load_dotenv
@@ -23,7 +17,7 @@ CRYPTO_PANIC_API_KEY = os.getenv("CRYPTO_PANIC_API_KEY")
 # Configure APIs
 genai.configure(api_key=GEMINI_API_KEY)
 
-BASE_URL = "https://cryptopanic.com/api/v1/posts/"
+BASE_URL = "https://cryptopanic.com/api/developer/v2/posts/"
 
 headers = {
     "User-Agent": "Mozilla/5.0",
@@ -259,6 +253,16 @@ def parse_flexible_date(date_str):
     except ValueError:
         return None, "Invalid date format. Please use DD-MM-YYYY."
 
+def get_article_description(url):
+    try:
+        article = Article(url)
+        article.download()
+        article.parse()
+        article.nlp()
+        return article.summary if article.summary else "No description available."
+    except:
+        return "No description available."
+
 def summarize_article(url):
     try:
         article = Article(url)
@@ -330,7 +334,12 @@ def news_related_query(user_input, asset, date, number):
     elif sub_intent == "news_by_asset":
         if asset == "unknown":
             return "⚠️ Please specify a crypto asset."
+
+        # First try tagged news
         params["currencies"] = asset
+
+        # If API returns nothing, fallback to keyword search
+        params["q"] = asset
 
     elif sub_intent == "news_by_date":
         if date == "unknown":
@@ -372,11 +381,6 @@ def news_related_query(user_input, asset, date, number):
 
     articles = response.json().get("results", [])
 
-    articles = [
-        a for a in articles
-        if a.get("sentiment", "neutral").lower() == sentiment.lower()
-    ]
-
     if sub_intent == "news_by_date" and filter_by_date:
         articles = [
             a for a in articles
@@ -391,64 +395,41 @@ def news_related_query(user_input, asset, date, number):
     # Format news with descriptions and real article link
     return format_news_response(articles)
 
-# Function to get real article link using Google Search
-def get_article_link(article_name, news_website):
-    query = f"{article_name} site:{news_website}"
+def resolve_redirect(url):
     try:
-        for url in search(query, num=1, stop=1, lang="en"):
-            return url
-    except Exception as e:
-        print("Error:", e)
-    return None
+        r = requests.get(url, allow_redirects=True, timeout=8)
+        return r.url
+    except:
+        return None
 
-# Function to get article description from a URL using Selenium
-def get_article_description(cryptopanic_url):
-    options = webdriver.ChromeOptions()
-    options.add_argument("--headless")
-    options.add_argument("--disable-gpu")
-    options.add_argument("--window-size=1920,1080")
-
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
-
-    try:
-        driver.set_page_load_timeout(10)
-        driver.get(cryptopanic_url)
-        time.sleep(5)
-        description_div = driver.find_element(By.CLASS_NAME, "description-body")
-        description_text = description_div.text
-    except Exception as e:
-        description_text = f"Error fetching description."
-    finally:
-        driver.quit()
-
-    return description_text
-
-# Function to format the news response with extra details (Description and Real Link)
 def format_news_response(articles):
     result = ""
+
     for a in articles:
         title = a.get("title", "No Title")
-        url = a.get("url", "No URL")
         published_at = a.get("published_at", "")[:10]
         sentiment = a.get("sentiment", "Neutral").capitalize()
-        domain = a.get("domain", "Unknown Source")
-        try:
-            description = get_article_description(url)  # if you're using Selenium for this
-        except Exception as e:
-            description = "cannot fetch the description"
+        source = a.get("domain", "Cryptopanic")
 
-        
-        real_url = get_article_link(title, domain)
-        url = real_url if real_url else url
+        # Real fallback URL using slug
+        slug = a.get("slug")
+        if slug:
+            real_url = f"https://cryptopanic.com/news/{slug}/"
+        else:
+            real_url = "No URL"
+
+        # Use Cryptopanic description (their summary)
+        description = a.get("description", "No description available.")
 
         result += (
             f"📰 {title}\n"
             f"📅 Date: {published_at}\n"
             f"📊 Sentiment: {sentiment}\n"
-            f"🌐 Source: {domain}\n"
+            f"🌐 Source: {source}\n"
             f"📝 Description: {description}\n"
-            f"🔗 Real Article Link: {url}\n\n"
+            f"🔗 Real Article Link: {real_url}\n\n"
         )
+
     return result.strip()
 
 def get_supported_coins(limit=20):
