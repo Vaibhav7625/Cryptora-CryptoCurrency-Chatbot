@@ -253,16 +253,6 @@ def parse_flexible_date(date_str):
     except ValueError:
         return None, "Invalid date format. Please use DD-MM-YYYY."
 
-def get_article_description(url):
-    try:
-        article = Article(url)
-        article.download()
-        article.parse()
-        article.nlp()
-        return article.summary if article.summary else "No description available."
-    except:
-        return "No description available."
-
 def summarize_article(url):
     try:
         article = Article(url)
@@ -276,6 +266,21 @@ def summarize_article(url):
         }
     except Exception as e:
         return f"An error occurred: {e}"
+
+def coingecko_to_ticker(asset_name):
+    try:
+        url = f"https://api.coingecko.com/api/v3/coins/{asset_name}"
+        r = requests.get(url)
+
+        if r.status_code != 200:
+            return None   # Not "UNKNOWN" → None means fallback allowed
+
+        data = r.json()
+        ticker = data.get("symbol", "").upper()
+
+        return ticker if ticker else None
+    except:
+        return None
 
 def news_related_query(user_input, asset, date, number):
     intent_keyword = classify_news_intent(user_input)
@@ -297,6 +302,9 @@ def news_related_query(user_input, asset, date, number):
     memory.save_context({"input": user_input}, {
         "output": f"{sub_intent},{asset},{date},{number},{keyword}"
     })
+
+    if asset != "unknown":
+        asset = coingecko_to_ticker(asset)
 
     params = {
         "auth_token": CRYPTO_PANIC_API_KEY,
@@ -395,13 +403,6 @@ def news_related_query(user_input, asset, date, number):
     # Format news with descriptions and real article link
     return format_news_response(articles)
 
-def resolve_redirect(url):
-    try:
-        r = requests.get(url, allow_redirects=True, timeout=8)
-        return r.url
-    except:
-        return None
-
 def format_news_response(articles):
     result = ""
 
@@ -422,12 +423,12 @@ def format_news_response(articles):
         description = a.get("description", "No description available.")
 
         result += (
-            f"📰 {title}\n"
-            f"📅 Date: {published_at}\n"
-            f"📊 Sentiment: {sentiment}\n"
-            f"🌐 Source: {source}\n"
-            f"📝 Description: {description}\n"
-            f"🔗 Real Article Link: {real_url}\n\n"
+            f"📰 {title}\n\n"
+            f"📅 𝐃𝐚𝐭𝐞: {published_at}\n\n"
+            f"📊 𝐒𝐞𝐧𝐭𝐢𝐦𝐞𝐧𝐭: {sentiment}\n\n"
+            f"🌐 𝐒𝐨𝐮𝐫𝐜𝐞: {source}\n\n"
+            f"📝 𝐃𝐞𝐬𝐜𝐫𝐢𝐩𝐭𝐢𝐨𝐧: {description}\n\n"
+            f"🔗 𝐑𝐞𝐚𝐥 𝐀𝐫𝐭𝐢𝐜𝐥𝐞 𝐋𝐢𝐧𝐤: {real_url}\n\n\n\n"
         )
 
     return result.strip()
