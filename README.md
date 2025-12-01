@@ -85,7 +85,7 @@ docker build -t cryptora .
 docker run -p 5000:5000 cryptora
 ```
 ## 🔧 Technical Details
-APIs Used
+### APIs Used
 
 - CoinGecko → live data, charts, OHLC, categories
 - CryptoPanic → filtered and event-based news
@@ -94,18 +94,18 @@ APIs Used
 - Gemini Flash → intent parsing & metadata extraction
 
 
-Memory System
+### Memory System
 
 Tracks:
 - last crypto
 - last date
 - last intent
 
-Enables follow-up queries like:
-> “And what about Ethereum?”
+  Enables follow-up queries like:
+  > “And what about Ethereum?”
 
 
-Frontend Logic Includes:
+### Frontend Logic Includes:
 
 - live voice recognition
 - auto-speak mode
