@@ -93,14 +93,17 @@ APIs Used
 - HuggingFace Model → LoRA inference endpoint
 - Gemini Flash → intent parsing & metadata extraction
 
+
 Memory System
 
 Tracks:
 - last crypto
 - last date
 - last intent
+
 Enables follow-up queries like:
 > “And what about Ethereum?”
+
 
 Frontend Logic Includes:
 
@@ -115,4 +118,3 @@ Vaibhav Gupta
 ```
 
 ## 🌟 Thank you for checking out our project!
-```
