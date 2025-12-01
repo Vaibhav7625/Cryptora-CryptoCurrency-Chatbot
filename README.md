@@ -111,10 +111,10 @@ Frontend Logic Includes:
 - auto-speak mode
 - real-time animations
 - time-stamped messages
-```
+
 
 ## 👨‍💻 Author
 Vaibhav Gupta
-```
+
 
 ## 🌟 Thank you for checking out our project!
