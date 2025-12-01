@@ -64,7 +64,7 @@ cryptora/
 
 ## ⚙️ Installation
 ```
-git clone <repo>
+git clone https://github.com/Vaibhav7625/Cryptora-CryptoCurrency-Chatbot
 pip install -r requirements.txt
 ```
 
@@ -84,7 +84,35 @@ python flask_app.py
 docker build -t cryptora .
 docker run -p 5000:5000 cryptora
 ```
+## 🔧 Technical Details
+APIs Used
+
+- CoinGecko → live data, charts, OHLC, categories
+- CryptoPanic → filtered and event-based news
+- Newspaper3k → article summaries
+- HuggingFace Model → LoRA inference endpoint
+- Gemini Flash → intent parsing & metadata extraction
+
+Memory System
+
+Tracks:
+- last crypto
+- last date
+- last intent
+Enables follow-up queries like:
+> “And what about Ethereum?”
+
+Frontend Logic Includes:
+
+- live voice recognition
+- auto-speak mode
+- real-time animations
+- time-stamped messages
+```
 
 ## 👨‍💻 Author
 Vaibhav Gupta
+```
+
+## 🌟 Thank you for checking out our project!
 ```
