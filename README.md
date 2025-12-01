@@ -64,7 +64,7 @@ cryptora/
 
 ## ⚙️ Installation
 ```
-git clone https://github.com/Vaibhav7625/Cryptora-CryptoCurrency-Chatbot
+git clone https://github.com/Vaibhav7625/Cryptora-CryptoCurrency-Chatbot.git
 pip install -r requirements.txt
 ```
 
